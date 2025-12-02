@@ -7,10 +7,12 @@ export default function HomePage() {
   const [users, setUsers] = useState([])
   const getProducts = async () => {
     const prods = await instance.get('/products')
-    const users = await instance.get('/users')
-    setProducts(prods)
-    setUsers(users)
+    const usrs = await instance.get('/users')
+
+    setProducts(prods.data)
+    setUsers(usrs.data)
   }
+
   useEffect(() => {
     getProducts()
   }, [])
