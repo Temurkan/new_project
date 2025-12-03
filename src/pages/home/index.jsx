@@ -9,8 +9,12 @@ export default function HomePage() {
     const prods = await instance.get('/products')
     const usrs = await instance.get('/users')
 
-    setProducts(prods.data)
-    setUsers(usrs.data)
+    console.log('PRODUCTS:', prods.data)
+    console.log('USERS:', usrs.data)
+
+    setProducts(Array.isArray(prods.data) ? prods.data : [])
+
+    setUsers(Array.isArray(usrs.data) ? usrs.data : [])
   }
 
   useEffect(() => {
@@ -22,18 +26,17 @@ export default function HomePage() {
         {products.map((prod) => (
           <li className='bg-gray-200 flex flex-col' key={prod.id}>
             <span className='font-semibold'>Product:{prod.title}</span>
-
             <span>Price:{prod.price}$</span>
           </li>
         ))}
       </ul>
       <ul className='grid grid-cols-10 gap-1'>
-        {users.map((user) => (
-          <li className='bg-gray-400' key={user.id}>
-            <div className='font-semibold'>User:{user.name}</div>
-            <div>Role:{user.role}</div>
-          </li>
-        ))}
+        {Array.isArray(users) &&
+          users.map((user) => (
+            <li className='bg-gray-200 flex flex-col' key={user.id}>
+              {user.name}
+            </li>
+          ))}
       </ul>
     </div>
   )

@@ -21,8 +21,8 @@ instance.interceptors.request.use(
 )
 
 instance.interceptors.response.use(
-  (config) => {
-    return config.data
+  (response) => {
+    return response
   },
   async (error) => {
     const originalReq = error.config

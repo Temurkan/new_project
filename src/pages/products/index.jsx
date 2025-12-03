@@ -216,7 +216,11 @@ export function PostPage() {
             >
               Reset
             </Button>
-            <Button type='submit' form='form-rhf-demo'>
+            <Button
+              className='cursor-pointer'
+              type='submit'
+              form='form-rhf-demo'
+            >
               Submit
             </Button>
           </Field>
