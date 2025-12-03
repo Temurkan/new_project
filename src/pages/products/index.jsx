@@ -57,7 +57,7 @@ export function PostPage() {
         price: Number(data.price),
         description: data.description,
         categoryId: Number(data.categoryId),
-        images: [data.images], // <-- строку превращаем в массив
+        images: [data.images],
       }
 
       const res = await instance.post('/products', payload)

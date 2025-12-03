@@ -22,7 +22,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    return response
+    return response, (error) => Promise.reject(error)
   },
   async (error) => {
     const originalReq = error.config
