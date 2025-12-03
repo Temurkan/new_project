@@ -5,8 +5,8 @@ import { PostPage } from '@/pages/products/index.jsx'
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path='/' element={<HomePage />} />
-      <Route path='/post' element={<PostPage />} />
+      <Route path='/' element={<PostPage />} />
+      <Route path='/post' element={<HomePage />} />
       <Route
         path='*'
         element={
