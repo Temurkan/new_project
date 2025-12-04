@@ -65,16 +65,26 @@ export function PostPage() {
       toast('Product created successfully!', {
         description: (
           <pre className='bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4'>
-            <code>{JSON.stringify(res, null, 2)}</code>
+            <code>{JSON.stringify(res.data, null, 2)}</code>
           </pre>
         ),
         position: 'bottom-right',
       })
+
+      form.reset()
     } catch (error) {
-      toast('Error creating product!', {
-        description: error.message,
-        position: 'bottom-right',
-      })
+      if (error.response) {
+        toast('Error creating product!', {
+          description:
+            error.response.data?.message || 'Product already exists!',
+          position: 'bottom-right',
+        })
+      } else {
+        toast('Network error!', {
+          description: error.message,
+          position: 'bottom-right',
+        })
+      }
     }
   }
 

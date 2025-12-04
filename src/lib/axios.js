@@ -6,6 +6,8 @@ export const instance = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
+    Pragma: 'no-cache',
   },
 })
 
@@ -22,10 +24,11 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    return response, (error) => Promise.reject(error)
+    return response
   },
   async (error) => {
     const originalReq = error.config
+
     if (
       error.response &&
       error.response.status === 401 &&
@@ -37,11 +40,13 @@ instance.interceptors.response.use(
         if (!refreshToken) {
           throw new Error('Refresh token is not exist')
         }
+
         const response = await axios.post(`${BASE_URL}/auth/refresh-token`, {
-          refreshToken: refreshToken,
+          refreshToken,
         })
 
         const { access_token, refresh_token } = response.data
+
         localStorage.setItem('access_token', access_token)
         localStorage.setItem('refresh_token', refresh_token)
 
@@ -56,5 +61,7 @@ instance.interceptors.response.use(
         return Promise.reject(refreshError)
       }
     }
+
+    return Promise.reject(error)
   }
 )
