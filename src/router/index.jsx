@@ -1,18 +1,36 @@
-import { Routes, Route } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import HomePage from '@/pages/home'
-import { PostPage } from '@/pages/products/index.jsx'
+import { PostPage } from '@/pages/products'
+import AuthLayout from '@/layouts/auth-layout.jsx'
+import { ProtectedRoutes } from '@/components/auth/protectedRoutes.jsx'
+import MainLayout from '@/layouts/main-layout.jsx'
+import LoginPage from '@/pages/login/index.jsx'
+import NotFoundPage from '@/pages/notfound/index.jsx'
 
-export default function AppRoutes() {
-  return (
-    <Routes>
-      <Route path='/' element={<PostPage />} />
-      <Route path='/post' element={<HomePage />} />
-      <Route
-        path='*'
-        element={
-          <div className='text-2xl p-4 text-red-500'>404 - Page Not Found</div>
-        }
-      />
-    </Routes>
-  )
-}
+const router = createBrowserRouter([
+  {
+    element: <AuthLayout />,
+    children: [{ path: '/login', element: <LoginPage /> }],
+  },
+  {
+    element: <ProtectedRoutes />,
+    children: [
+      {
+        element: <MainLayout />,
+        children: [
+          {
+            path: '/',
+            element: <HomePage />,
+          },
+          {
+            path: '/post',
+            element: <PostPage />,
+          },
+        ],
+      },
+    ],
+  },
+  { path: '*', element: <NotFoundPage /> },
+])
+
+export default router

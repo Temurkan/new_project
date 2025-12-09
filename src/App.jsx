@@ -1,13 +1,12 @@
-import { BrowserRouter } from 'react-router-dom'
-import AppRoutes from '@/router'
+import { BrowserRouter, RouterProvider } from 'react-router-dom'
 import { Toaster } from 'sonner'
-
+import router from './router'
 function App() {
   return (
-    <BrowserRouter>
+    <>
       <Toaster />
-      <AppRoutes />
-    </BrowserRouter>
+      <RouterProvider router={router} />
+    </>
   )
 }
 
