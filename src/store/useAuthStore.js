@@ -1,4 +1,5 @@
 import { authService } from '@/services/auth-service.js'
+
 import { create } from 'zustand'
 
 export const useAuthStore = create((set) => ({
@@ -7,17 +8,18 @@ export const useAuthStore = create((set) => ({
   loading: false,
   error: null,
 
-  login: async (username, password) => {
+  login: async (payload) => {
     set({ loading: true, error: null })
     try {
-      const { access_token, refresh_token } = await authService.login(
-        username,
-        password
-      )
+      const response = await authService.login(payload)
+      const { access_token, refresh_token } = response.data
+
       localStorage.setItem('access_token', access_token)
       localStorage.setItem('refresh_token', refresh_token)
 
-      const user = await authService.getProfile()
+      console.log('login response:', response)
+
+      const user = await authService.get()
       set({
         user: user,
         isAuthenticated: true,
@@ -38,16 +40,39 @@ export const useAuthStore = create((set) => ({
     localStorage.removeItem('refresh_token')
     set({ user: null, isAuthenticated: false })
   },
+  register: async (formData) => {
+    set({ loading: true, error: null })
+    try {
+      const payload = {
+        ...formData,
+        avatar:
+          'https://sm.ign.com/t/ign_pk/cover/a/avatar-gen/avatar-generations_rpge.600.jpg',
+      }
+      await authService.register(payload)
+      set({ loading: false })
+      return true
+    } catch (error) {
+      console.log('Register error:', error)
+      set({
+        loading: false,
+        error:
+          error.response?.data?.message || error.message || 'Register error',
+      })
+      return false
+    }
+  },
   checkAuth: async (params) => {
     const token = localStorage.getItem('access_token')
     if (!token) return
     try {
-      const user = await authService.getProfile()
+      const user = await authService.get()
       set({ user: user, isAuthenticated: true })
     } catch (error) {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
       set({ user: null, isAuthenticated: false })
     }
+    logout()
+    navigate('/login')
   },
 }))

@@ -1,16 +1,16 @@
 import { instance } from '@/lib/axios.js'
 
 export const authService = {
-  login: async (username, password) => {
-    return instance.post('/auth/login', { username, password })
+  login: async (credentials) => {
+    return await instance.post('/auth/login', credentials)
   },
   logout: async () => {
     return ''
   },
-  register: async () => {
-    return instance.post('/', data)
+  register: async (data) => {
+    return await instance.post('/users', data)
   },
-  getProfile: async () => {
-    return instance.get('/auth/profile')
+  get: async () => {
+    return await instance.get('/auth/profile')
   },
 }
