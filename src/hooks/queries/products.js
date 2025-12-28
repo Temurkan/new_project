@@ -1,16 +1,35 @@
-import { productService } from '@/services/product-services.js'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { productService } from "@/services/product-services.js";
 
 export const useProducts = () => {
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['products'],
+  return useQuery({
+    queryKey: ["products"],
     queryFn: productService.getAllProducts,
-  })
-  return {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  }
-}
+    initialData: [],
+  });
+};
+
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: productService.createProduct,
+    onMutate: async (newProduct) => {
+      await queryClient.cancelQueries({ queryKey: ["products"] });
+      const previousProducts = queryClient.getQueryData(["products"]);
+
+      queryClient.setQueryData(["products"], (old = []) => [
+        { ...newProduct, id: Date.now() },
+        ...old,
+      ]);
+
+      return { previousProducts };
+    },
+    onError: (err, newProduct, context) => {
+      queryClient.setQueryData(["products"], context.previousProducts);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};

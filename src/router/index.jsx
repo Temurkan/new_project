@@ -1,19 +1,19 @@
-import { createBrowserRouter } from 'react-router-dom'
-import HomePage from '@/pages/home'
-import { PostPage } from '@/pages/products'
-import AuthLayout from '@/layouts/auth-layout'
-import { ProtectedRoutes } from '@/components/auth/protectedRoutes'
-import MainLayout from '@/layouts/main-layout'
-import LoginPage from '@/pages/login'
-import NotFoundPage from '@/pages/notfound'
-import RegisterPage from '@/pages/register'
+import { createBrowserRouter } from "react-router-dom";
+import HomePage from "@/pages/home";
+import { PostPage } from "@/pages/products";
+import AuthLayout from "@/layouts/auth-layout";
+import { ProtectedRoutes } from "@/components/auth/protectedRoutes";
+import MainLayout from "@/layouts/main-layout";
+import LoginPage from "@/pages/login";
+import NotFoundPage from "@/pages/notfound";
+import RegisterPage from "@/pages/register";
 
 const router = createBrowserRouter([
   {
     element: <AuthLayout />,
     children: [
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
+      { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage /> },
     ],
   },
   {
@@ -23,18 +23,34 @@ const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
           {
-            path: '/',
+            path: "/",
             element: <HomePage />,
           },
           {
-            path: '/post',
+            path: "/post",
             element: <PostPage />,
+          },
+          {
+            path: "/73",
+            element: <HomePage />,
+          },
+          {
+            path: "/74",
+            element: <HomePage />,
+          },
+          {
+            path: "/75",
+            element: <HomePage />,
+          },
+          {
+            path: "/97",
+            element: <HomePage />,
           },
         ],
       },
     ],
   },
-  { path: '*', element: <NotFoundPage /> },
-])
+  { path: "*", element: <NotFoundPage /> },
+]);
 
-export default router
+export default router;
