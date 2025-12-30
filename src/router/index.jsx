@@ -7,6 +7,10 @@ import MainLayout from "@/layouts/main-layout";
 import LoginPage from "@/pages/login";
 import NotFoundPage from "@/pages/notfound";
 import RegisterPage from "@/pages/register";
+import ThreePage from "@/pages/three";
+import FourPage from "@/pages/four";
+import FivePage from "@/pages/five";
+import SevenPage from "@/pages/seven";
 
 const router = createBrowserRouter([
   {
@@ -32,19 +36,19 @@ const router = createBrowserRouter([
           },
           {
             path: "/73",
-            element: <HomePage />,
+            element: <ThreePage />,
           },
           {
             path: "/74",
-            element: <HomePage />,
+            element: <FourPage />,
           },
           {
             path: "/75",
-            element: <HomePage />,
+            element: <FivePage />,
           },
           {
             path: "/97",
-            element: <HomePage />,
+            element: <SevenPage />,
           },
         ],
       },

@@ -3,18 +3,14 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
-import CardProduct from "@/components/card";
-import { instance } from "@/lib/axios";
+import { productService } from "@/services/product-services";
+import { useCreateProduct } from "@/hooks/mutations/create-product";
 
+import CardProduct from "@/components/cardp";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -38,10 +34,22 @@ const formSchema = z.object({
   images: z.string().url(),
 });
 
-export default function HomePage() {
-  const [products, setProducts] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [submitting, setSubmitting] = React.useState(false);
+export default function FourPage() {
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: productService.getAllProducts,
+  });
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: productService.getCategories,
+  });
+  console.log("Доступные категории:", products);
+
+  const createProductMutation = useCreateProduct();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -54,38 +62,6 @@ export default function HomePage() {
     },
   });
 
-  const getProducts = async () => {
-    try {
-      setLoading(true);
-      const { data } = await instance.get("/products");
-      setProducts(data);
-    } catch (error) {
-      toast.error("Error loading products");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createProduct = async (payload) => {
-    try {
-      setSubmitting(true);
-      await instance.post("/products", payload);
-
-      toast.success("Product created successfully!");
-      form.reset();
-
-      await getProducts();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Error creating product");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  React.useEffect(() => {
-    getProducts();
-  }, []);
-
   async function onSubmit(data) {
     const payload = {
       title: data.title,
@@ -95,10 +71,29 @@ export default function HomePage() {
       images: [data.images],
     };
 
-    await createProduct(payload);
+    createProductMutation.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Product created successfully!");
+        form.reset();
+      },
+      onError: (error) => {
+        console.error("Детали ошибки API:", error.response?.data);
+
+        const errorMessage =
+          error.response?.data?.message || "Error creating product";
+        toast.error(
+          Array.isArray(errorMessage) ? errorMessage[0] : errorMessage
+        );
+      },
+    });
   }
 
-  if (loading) return <p>Loading...</p>;
+  if (isLoading)
+    return <div className="p-10 text-center text-xl">Loading products...</div>;
+  if (isError)
+    return (
+      <div className="p-10 text-center text-red-500">Error loading data</div>
+    );
 
   return (
     <div className="space-y-6 pt-24 px-3">
@@ -150,7 +145,7 @@ export default function HomePage() {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel>Product image</FieldLabel>
+                      <FieldLabel>Product image URL</FieldLabel>
                       <Input {...field} />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -202,12 +197,18 @@ export default function HomePage() {
                     type="button"
                     variant="outline"
                     onClick={() => form.reset()}
+                    disabled={createProductMutation.isPending}
                   >
                     Reset
                   </Button>
 
-                  <Button type="submit" disabled={submitting}>
-                    {submitting ? "Submitting..." : "Submit"}
+                  <Button
+                    type="submit"
+                    disabled={createProductMutation.isPending}
+                  >
+                    {createProductMutation.isPending
+                      ? "Submitting..."
+                      : "Submit"}
                   </Button>
                 </div>
               </FieldGroup>
