@@ -37,17 +37,17 @@ const formSchema = z.object({
 export default function FourPage() {
   const {
     data: products = [],
-    isLoading,
-    isError,
+    isLoading: productsLoading,
+    isError: productsError,
   } = useQuery({
     queryKey: ["products"],
     queryFn: productService.getAllProducts,
   });
-  const { data: categories = [] } = useQuery({
+
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: productService.getCategories,
   });
-  console.log("Доступные категории:", products);
 
   const createProductMutation = useCreateProduct();
 
@@ -77,8 +77,6 @@ export default function FourPage() {
         form.reset();
       },
       onError: (error) => {
-        console.error("Детали ошибки API:", error.response?.data);
-
         const errorMessage =
           error.response?.data?.message || "Error creating product";
         toast.error(
@@ -88,11 +86,14 @@ export default function FourPage() {
     });
   }
 
-  if (isLoading)
-    return <div className="p-10 text-center text-xl">Loading products...</div>;
-  if (isError)
+  if (productsLoading || categoriesLoading)
+    return <div className="p-10 text-center text-xl">Loading data...</div>;
+
+  if (productsError)
     return (
-      <div className="p-10 text-center text-red-500">Error loading data</div>
+      <div className="p-10 text-center text-red-500">
+        Error loading products
+      </div>
     );
 
   return (
@@ -108,7 +109,6 @@ export default function FourPage() {
           <CardHeader>
             <CardTitle>Add New Product</CardTitle>
           </CardHeader>
-
           <CardContent>
             <form id="form" onSubmit={form.handleSubmit(onSubmit)}>
               <FieldGroup>
@@ -132,7 +132,7 @@ export default function FourPage() {
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel>Product price</FieldLabel>
-                      <Input {...field} />
+                      <Input {...field} type="number" />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
                       )}
@@ -159,8 +159,18 @@ export default function FourPage() {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel>Category id</FieldLabel>
-                      <Input {...field} />
+                      <FieldLabel>Category</FieldLabel>
+                      <select
+                        {...field}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none"
+                      >
+                        <option value="">Choose a category...</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
                       )}
@@ -182,9 +192,6 @@ export default function FourPage() {
                           </InputGroupText>
                         </InputGroupAddon>
                       </InputGroup>
-                      <FieldDescription>
-                        Brief description of the product.
-                      </FieldDescription>
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
                       )}
@@ -197,11 +204,9 @@ export default function FourPage() {
                     type="button"
                     variant="outline"
                     onClick={() => form.reset()}
-                    disabled={createProductMutation.isPending}
                   >
                     Reset
                   </Button>
-
                   <Button
                     type="submit"
                     disabled={createProductMutation.isPending}

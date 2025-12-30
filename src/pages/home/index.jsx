@@ -41,6 +41,7 @@ const formSchema = z.object({
 export default function HomePage() {
   const [products, setProducts] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
+  const [categories, setCategories] = React.useState([]);
   const [submitting, setSubmitting] = React.useState(false);
 
   const form = useForm({
@@ -54,6 +55,21 @@ export default function HomePage() {
     },
   });
 
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [prodRes, catRes] = await Promise.all([
+        instance.get("/products"),
+        instance.get("/categories"),
+      ]);
+      setProducts(prodRes.data);
+      setCategories(catRes.data);
+    } catch (error) {
+      toast.error("Error loading data");
+    } finally {
+      setLoading(false);
+    }
+  };
   const getProducts = async () => {
     try {
       setLoading(true);
@@ -84,6 +100,7 @@ export default function HomePage() {
 
   React.useEffect(() => {
     getProducts();
+    fetchData();
   }, []);
 
   async function onSubmit(data) {
@@ -164,11 +181,26 @@ export default function HomePage() {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel>Category id</FieldLabel>
-                      <Input {...field} />
+                      <FieldLabel>Category</FieldLabel>
+
+                      <select
+                        {...field}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <option value="">Choose a category...</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name} (ID: {cat.id})
+                          </option>
+                        ))}
+                      </select>
+
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
                       )}
+                      <FieldDescription>
+                        Select a category from the list instead of typing an ID.
+                      </FieldDescription>
                     </Field>
                   )}
                 />
